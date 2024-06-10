@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+    <ItemGroup>
+        <Resource Include="assets\blinky-left.png" />
+        <Resource Include="assets\blinky-right.png" />
+        <Resource Include="assets\clyde-left.png" />
+        <Resource Include="assets\clyde-right.png" />
+        <Resource Include="assets\coin-tile-01.gif" />
+        <Resource Include="assets\coin.png" />
+        <Resource Include="assets\dot.png" />
+        <Resource Include="assets\empty-tile-01.png" />
+        <Resource Include="assets\empty-tile-02.png" />
+        <Resource Include="assets\empty-tile-03.png" />
+        <Resource Include="assets\heart-full.png" />
+        <Resource Include="assets\heart-half.png" />
+        <Resource Include="assets\inky-left.png" />
+        <Resource Include="assets\inky-right.png" />
+        <Resource Include="assets\kill-screen.png" />
+        <Resource Include="assets\logo.png" />
+        <Resource Include="assets\main-menu.png" />
+        <Resource Include="assets\money.png" />
+        <Content Include="assets\munch.wav">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="assets\music.wav">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="assets\nomnom.wav">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Content Include="assets\ouch.wav">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+        <Resource Include="assets\pacman-down.png" />
+        <Resource Include="assets\pacman-left.png" />
+        <Resource Include="assets\pacman-right.png" />
+        <Resource Include="assets\pacman-up.png" />
+        <Resource Include="assets\pause-menu.png" />
+        <Resource Include="assets\pinky-left.png" />
+        <Resource Include="assets\pinky-right.png" />
+        <Resource Include="assets\portal-tile-01.png" />
+        <Resource Include="assets\wall-tile-01.png" />
+        <Resource Include="assets\wall-tile-02.png" />
+        <Resource Include="assets\wall-tile-03.png" />
+        <Resource Include="assets\wall-tile-04.png" />
+        <Resource Include="assets\win-screen.png" />
+        <Content Include="assets\font.ttf">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+</Project>
