@@ -57,8 +57,8 @@ namespace Pacman {
                             munchPlayer  = new("assets/munch.wav"),
                             // nomnomPlayer = new("assets/nomnom.wav"),
                             ouchPlayer   = new("assets/ouch.wav");
-        Random random = new();
-        GameState gameState;
+        private readonly Random random = new();
+        private GameState gameState;
         private const int mapWidth = 32,
                           mapHeight = 32,
                           gridWidth = mapWidth,
@@ -67,7 +67,7 @@ namespace Pacman {
         private List<(int x, int y)> portalsCoords;
         private bool teleported;
         private int lives, coins, dots;
-        private static string dotUri        = "assets/dot.png",
+        private readonly static string dotUri        = "assets/dot.png",
                               coinUri       = "assets/coin.png",
                               moneyUri      = "assets/money.png",
                               heartFullUri  = "assets/heart-full.png",
@@ -76,7 +76,7 @@ namespace Pacman {
                               pauseMenuUri  = "assets/pause-menu.png",
                               killScreenUri = "assets/kill-screen.png",
                               winScreenUri  = "assets/win-screen.png";
-        private static string[] wallTileUris   = { "assets/wall-tile-01.png",  "assets/wall-tile-02.png",  "assets/wall-tile-03.png", "assets/wall-tile-04.png" },
+        private readonly static string[] wallTileUris   = { "assets/wall-tile-01.png",  "assets/wall-tile-02.png",  "assets/wall-tile-03.png", "assets/wall-tile-04.png" },
                                 emptyTileUris  = { "assets/empty-tile-01.png", "assets/empty-tile-02.png", "assets/empty-tile-03.png" },
                                 portalTileUris = { "assets/portal-tile-01.png" },
                                 pacmanUris     = { "assets/pacman-up.png",   "assets/pacman-down.png",  "assets/pacman-left.png", "assets/pacman-right.png" },
@@ -84,11 +84,11 @@ namespace Pacman {
                                 pinkyUris      = { "assets/pinky-left.png",  "assets/pinky-right.png",  "assets/pinky-left.png",  "assets/pinky-right.png"  },
                                 inkyUris       = { "assets/inky-left.png",   "assets/inky-right.png",   "assets/inky-left.png",   "assets/inky-right.png"   },
                                 clydeUris      = { "assets/clyde-left.png",  "assets/clyde-right.png",  "assets/clyde-left.png",  "assets/clyde-right.png"  };
-            private Entity pacman = new(EntityType.Pacman, pacmanUris),
-                           blinky = new(EntityType.Blinky, blinkyUris),
-                           pinky  = new(EntityType.Pinky,  pinkyUris),
-                           inky   = new(EntityType.Inky,   inkyUris),
-                           clyde  = new(EntityType.Clyde,  clydeUris);
+        private Entity pacman = new(EntityType.Pacman, pacmanUris),
+                       blinky = new(EntityType.Blinky, blinkyUris),
+                       pinky  = new(EntityType.Pinky,  pinkyUris),
+                       inky   = new(EntityType.Inky,   inkyUris),
+                       clyde  = new(EntityType.Clyde,  clydeUris);
         public MainWindow() {
             InitializeComponent();
             timer = new();
@@ -149,7 +149,7 @@ namespace Pacman {
                 EntityDirection.Down  => (map[enemy.Coords.x - 1, enemy.Coords.y].tile != TileType.Empty && map[enemy.Coords.x + 1, enemy.Coords.y].tile != TileType.Empty && map[enemy.Coords.x, enemy.Coords.y + 1].tile == TileType.Empty),
                 EntityDirection.Left  => (map[enemy.Coords.x, enemy.Coords.y - 1].tile != TileType.Empty && map[enemy.Coords.x, enemy.Coords.y + 1].tile != TileType.Empty && map[enemy.Coords.x - 1, enemy.Coords.y].tile == TileType.Empty),
                 EntityDirection.Right => (map[enemy.Coords.x, enemy.Coords.y - 1].tile != TileType.Empty && map[enemy.Coords.x, enemy.Coords.y + 1].tile != TileType.Empty && map[enemy.Coords.x + 1, enemy.Coords.y].tile == TileType.Empty),
-            }) && random.NextDouble() > 0.25) EntityStep(enemy);
+            }) && random.NextDouble() > 0.9) EntityStep(enemy);
             else {
                 (int  x, int  y) absCoordsDiff  = (Math.Abs(pacman.Coords.x - enemy.Coords.x), Math.Abs(pacman.Coords.y - enemy.Coords.y));
                 (bool x, bool y) boolCoordsDiff = (pacman.Coords.x < enemy.Coords.x,           pacman.Coords.y < enemy.Coords.y);
@@ -232,8 +232,8 @@ namespace Pacman {
                     EnemyStep(inky);
                     EnemyStep(clyde);
                     EntityStep(pacman);
-                    RenderEntitiesOntoGrid();
-                    RenderStatsOntoGrid();
+                    // RenderEntitiesOntoGrid();
+                    // RenderStatsOntoGrid();
                     if (
                         pacman.Coords == blinky.Coords ||
                         pacman.Coords == pinky.Coords  ||
@@ -242,6 +242,8 @@ namespace Pacman {
                     ) {
                         if ((lives -= 2) > 0) gameState = GameState.HitPause;
                         else                  gameState = GameState.KillScreen;
+                        RenderEntitiesOntoGrid();
+                        RenderStatsOntoGrid();
                         return;
                     }
                     if (map[pacman.Coords.x, pacman.Coords.y].tile == TileType.Portal && portalsCoords.Count > 1) {
@@ -256,8 +258,8 @@ namespace Pacman {
                         case ItemType.Heart: ClearTextureFromGridTileAt(pacman.Coords); lives += 1; break;
                     }
                     map[pacman.Coords.x, pacman.Coords.y].item = null;
-                    // RenderEntitiesOntoGrid();
-                    // RenderStatsOntoGrid();
+                    RenderEntitiesOntoGrid();
+                    RenderStatsOntoGrid();
                 break;
             }
         }
