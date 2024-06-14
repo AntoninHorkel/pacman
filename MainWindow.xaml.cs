@@ -11,6 +11,7 @@ namespace Pacman {
     enum GameState: byte {
         MainMenu,
         PauseMenu,
+        HitPause,
         KillScreen,
         WinSceen,
         Fun,
@@ -143,16 +144,17 @@ namespace Pacman {
             EntityStep(entity);
         }
         private void EnemyStep(Entity enemy) {
-            if (!(enemy.Direction switch {
+            if ((enemy.Direction switch {
                 EntityDirection.Up    => (map[enemy.Coords.x - 1, enemy.Coords.y].tile != TileType.Empty && map[enemy.Coords.x + 1, enemy.Coords.y].tile != TileType.Empty && map[enemy.Coords.x, enemy.Coords.y - 1].tile == TileType.Empty),
                 EntityDirection.Down  => (map[enemy.Coords.x - 1, enemy.Coords.y].tile != TileType.Empty && map[enemy.Coords.x + 1, enemy.Coords.y].tile != TileType.Empty && map[enemy.Coords.x, enemy.Coords.y + 1].tile == TileType.Empty),
                 EntityDirection.Left  => (map[enemy.Coords.x, enemy.Coords.y - 1].tile != TileType.Empty && map[enemy.Coords.x, enemy.Coords.y + 1].tile != TileType.Empty && map[enemy.Coords.x - 1, enemy.Coords.y].tile == TileType.Empty),
                 EntityDirection.Right => (map[enemy.Coords.x, enemy.Coords.y - 1].tile != TileType.Empty && map[enemy.Coords.x, enemy.Coords.y + 1].tile != TileType.Empty && map[enemy.Coords.x + 1, enemy.Coords.y].tile == TileType.Empty),
-            })) {
+            }) && random.NextDouble() > 0.25) EntityStep(enemy);
+            else {
                 (int  x, int  y) absCoordsDiff  = (Math.Abs(pacman.Coords.x - enemy.Coords.x), Math.Abs(pacman.Coords.y - enemy.Coords.y));
                 (bool x, bool y) boolCoordsDiff = (pacman.Coords.x < enemy.Coords.x,           pacman.Coords.y < enemy.Coords.y);
                 if (absCoordsDiff.x + absCoordsDiff.y <= 1) enemy.Coords = pacman.Coords;
-                else if (absCoordsDiff.x < absCoordsDiff.y) {
+                else if (absCoordsDiff.x > absCoordsDiff.y) {
                     if (      boolCoordsDiff.x && map[enemy.Coords.x - 1, enemy.Coords.y].tile == TileType.Empty) enemy.Coords.x -= 1;
                     else if (!boolCoordsDiff.x && map[enemy.Coords.x + 1, enemy.Coords.y].tile == TileType.Empty) enemy.Coords.x += 1;
                     else if ( boolCoordsDiff.y && map[enemy.Coords.x, enemy.Coords.y - 1].tile == TileType.Empty) enemy.Coords.y -= 1;
@@ -198,10 +200,22 @@ namespace Pacman {
                     munchPlayer.Stop();
                     musicPlayer.PlayLooping();
                 break;
+                case GameState.HitPause:
+                    timer.Stop();
+                    munchPlayer.Stop();
+                    ouchPlayer.PlaySync();
+                    ResetEntityCoords();
+                    musicPlayer.PlayLooping();
+                    // ClearStatsFromGrid();
+                    // ClearEntitiesFromGrid();
+                    // RenderEntitiesOntoGrid();
+                    // RenderStatsOntoGrid();
+                break;
                 case GameState.KillScreen:
                     timer.Stop();
-                    RenderFullImage(killScreenUri);
                     munchPlayer.Stop();
+                    ouchPlayer.PlaySync();
+                    RenderFullImage(killScreenUri);
                     musicPlayer.PlayLooping();
                 break;
                 case GameState.WinSceen:
@@ -218,22 +232,16 @@ namespace Pacman {
                     EnemyStep(inky);
                     EnemyStep(clyde);
                     EntityStep(pacman);
+                    RenderEntitiesOntoGrid();
+                    RenderStatsOntoGrid();
                     if (
                         pacman.Coords == blinky.Coords ||
                         pacman.Coords == pinky.Coords  ||
                         pacman.Coords == inky.Coords   ||
                         pacman.Coords == clyde.Coords
                     ) {
-                        timer.Stop();
-                        if ((lives -= 2) > 0) {
-                            gameState = GameState.PauseMenu;
-                            ResetEntityCoords();
-                        } else gameState = GameState.KillScreen;
-                        RenderEntitiesOntoGrid();
-                        RenderStatsOntoGrid();
-                        munchPlayer.Stop();
-                        ouchPlayer.PlaySync();
-                        musicPlayer.PlayLooping();
+                        if ((lives -= 2) > 0) gameState = GameState.HitPause;
+                        else                  gameState = GameState.KillScreen;
                         return;
                     }
                     if (map[pacman.Coords.x, pacman.Coords.y].tile == TileType.Portal && portalsCoords.Count > 1) {
@@ -248,8 +256,8 @@ namespace Pacman {
                         case ItemType.Heart: ClearTextureFromGridTileAt(pacman.Coords); lives += 1; break;
                     }
                     map[pacman.Coords.x, pacman.Coords.y].item = null;
-                    RenderEntitiesOntoGrid();
-                    RenderStatsOntoGrid();
+                    // RenderEntitiesOntoGrid();
+                    // RenderStatsOntoGrid();
                 break;
             }
         }
@@ -262,13 +270,18 @@ namespace Pacman {
                 case Key.Escape: gameState            = GameState.PauseMenu;   return;
                 default:                                                       return;
             }
-            if (gameState == GameState.MainMenu || gameState == GameState.PauseMenu && !timer.IsEnabled) {
+            if ((gameState == GameState.MainMenu || gameState == GameState.PauseMenu) && !timer.IsEnabled) {
                 ClearFullImageFromGrid();
                 gameState = GameState.Fun;
                 timer.Start();
                 musicPlayer.Stop();
                 munchPlayer.PlayLooping();
-            } else if (gameState == GameState.KillScreen || gameState == GameState.WinSceen && !timer.IsEnabled) {
+            } else if (gameState == GameState.HitPause && !timer.IsEnabled) {
+                gameState = GameState.Fun;
+                timer.Start();
+                musicPlayer.Stop();
+                munchPlayer.PlayLooping();
+            } else if ((gameState == GameState.KillScreen || gameState == GameState.WinSceen) && !timer.IsEnabled) {
                 ClearGrid();
                 gameState = GameState.Fun;
                 InitGame();
